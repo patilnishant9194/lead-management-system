@@ -241,34 +241,31 @@ exports.updateLead = async (req, res) => {
 };
 
 exports.deleteLead = async (req, res) => {
-  if (req.user.role !== "Admin") {
 
+  if (req.user.role !== "Admin") {
     return res.status(403).json({
       message: "Only Admin can delete leads"
     });
-
   }
 
   try {
 
     const { id } = req.params;
 
+    // Delete activity logs first
     await pool.query(
-      `
-  INSERT INTO activity_logs
-  (lead_id, action)
-  VALUES($1,$2)
-  `,
-      [id, "Lead Deleted"]
+      "DELETE FROM activity_logs WHERE lead_id = $1",
+      [id]
     );
 
+    // Delete lead
     await pool.query(
       "DELETE FROM leads WHERE id = $1",
       [id]
     );
 
     res.status(200).json({
-      message: "Lead deleted"
+      message: "Lead deleted successfully"
     });
 
   } catch (err) {

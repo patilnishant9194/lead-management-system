@@ -22,6 +22,35 @@ function CreateLead() {
 
   const [notes, setNotes] =
     useState("");
+  const fetchLead = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      const response = await api.get(
+        `/leads/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setName(response.data.name);
+      setEmail(response.data.email);
+      setPhone(response.data.phone);
+      setSource(response.data.source);
+      setStatus(response.data.status);
+      setNotes(response.data.notes);
+
+    } catch (err) {
+
+      console.log(err);
+
+    }
+
+  };
 
   const handleSubmit = async (e) => {
 
@@ -29,34 +58,57 @@ function CreateLead() {
 
     try {
 
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-      await api.post(
-        "/leads/create",
-        {
-          name,
-          email,
-          phone,
-          source,
-          status,
-          notes
-        },
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`
+      if (id) {
+
+        await api.put(
+          `/leads/${id}`,
+          {
+            name,
+            email,
+            phone,
+            source,
+            status,
+            notes
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      alert("Lead created");
+        alert("Lead Updated");
+
+      } else {
+
+        await api.post(
+          "/leads/create",
+          {
+            name,
+            email,
+            phone,
+            source,
+            status,
+            notes
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        alert("Lead Created");
+
+      }
 
     } catch (err) {
 
       console.log(err);
 
-      alert("Failed to create lead");
+      alert("Operation Failed");
 
     }
 
@@ -75,6 +127,7 @@ function CreateLead() {
             <h2 className="mb-4 text-center">
               {id ? "Update Lead" : "Create Lead"}
             </h2>
+
 
             <form onSubmit={handleSubmit}>
 
